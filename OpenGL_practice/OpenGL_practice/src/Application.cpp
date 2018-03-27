@@ -11,6 +11,34 @@
 #include <string>
 #include <sstream>
 
+#define ASSERT(x) if (!(x)) __debugbreak();
+//ovdje pravim macro koji ce automatski zovnuti clear error funkciju itd. svaki put kad se dogodi error
+//znaci u ovom slucaju pravim macro koji se zove "GLCall" koji prima x (x je funkcija)
+//poziva se prvo "GLClearError", i onda ide backslash "\" da bi mogao nastaviti pisati ispod macro, jer bi bilo previse sve u liniji napisati.
+//zatim ide x (to je nasa funckija koju smo proslijedili
+//kad pozivamo funkciju (tj. x) trebamo proslijediti 3 paramentra
+//kad uradimo "#x" to znaci da cemo uraditi x.ToString(), tkao cemo dobiti ime funkcije
+//VELIKI NOTE: Cherno kaze da on SVAKU openGl funkciju wrapa u ovaj call, tako da bi trebao to zapamtiti da je best practice to (ne radi meni - makar na poslu)
+#define GLCall(x) GLClearError();\
+	x;\
+	ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+
+static void GLClearError()
+{
+	// while (!glGetError()); // Can be done like this as well
+	while (!glGetError() != GL_NO_ERROR);
+}
+
+static bool GLLogCall(const char* function, const char* file, int line)
+{
+	while (GLenum error = glGetError())
+	{
+		std::cout << "[OpenGl error] (" << error << "): " << function << " " << file << ":" << line << std::endl;
+		return false;
+	}
+	return true;
+}
+
 struct ShaderProgramSource
 {
 	std::string VertexSource;
@@ -51,7 +79,7 @@ static ShaderProgramSource ParseShader(const std::string& filepath)
 			ss[(int)type] << line << '\n';
 		}
 	}
-	return { ss[0].str(), ss[1].str() };
+	return {ss[0].str(), ss[1].str()};
 }
 
 static unsigned int CompileShader(unsigned int type, const std::string& source)
@@ -138,17 +166,16 @@ int main(void)
 	0.5f, -0.5f
 	};*/
 	float positions[] = {
-		-0.5f, -0.5f,	// 0
-		0.5f, -0.5f,	// 1
-		0.5f, 0.5f,		// 2
-		-0.5f, 0.5f		// 3
+		-0.5f, -0.5f, // 0
+		0.5f, -0.5f, // 1
+		0.5f, 0.5f, // 2
+		-0.5f, 0.5f // 3
 	};
 
 	unsigned int indices[] = {
 		0, 1, 2,
 		2, 3, 0
 	};
-
 
 	// Stari array of vertexes nacin crtanja trougla
 	unsigned int buffer;
@@ -192,6 +219,7 @@ int main(void)
 		// Index buffer crtanje
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
+		// GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr)); // uncomment to test error func
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
