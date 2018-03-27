@@ -3,6 +3,16 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+
+# GLEW lib ignore
+**/GLEW/LICENSE.txt
+**/GLEW/doc/*.html
+**/GLEW/doc/*.css
+**/GLEW/doc/*.png
+**/GLEW/doc/*.txt
+**/GLEW/doc/*.jpg
+
+
 # project spefic files
 **/Scripts/dist/main.js
 **/Scripts/dist/vendor.js
