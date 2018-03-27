@@ -1,6 +1,7 @@
 /*
- * OPEN GL DOCUMENTATION SITE: http://docs.gl/
- */
+* OPEN GL DOCUMENTATION SITE: http://docs.gl/
+* PUNO PUNO PUNO DOBAR SAJT ZA OPENGL TUTORIALE: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-2-the-first-triangle/ OVO MORAS PROVJERAVATI STALNO.
+*/
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -131,23 +132,44 @@ int main(void)
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
 	// Vertex buffers and layouts in open GL
-	float positions[6] = {
-		-0.5f, -0.5f,
-		0.0f, 0.5f,
-		0.5f, -0.5f
+	/*float positions[6] = {
+	-0.5f, -0.5f,
+	0.0f, 0.5f,
+	0.5f, -0.5f
+	};*/
+	float positions[] = {
+		-0.5f, -0.5f,	// 0
+		0.5f, -0.5f,	// 1
+		0.5f, 0.5f,		// 2
+		-0.5f, 0.5f		// 3
 	};
+
+	unsigned int indices[] = {
+		0, 1, 2,
+		2, 3, 0
+	};
+
+
+	// Stari array of vertexes nacin crtanja trougla
 	unsigned int buffer;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
+	// Ovdje je prije bilo za 2gi parametar samo "6 * sizeof(float)", ali to je zato sto je bilo 6 tacaka koje treba nacrtati
+	glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
 	// Vertex attributes and layouts in open GL
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 	glEnableVertexAttribArray(0);
 
+	// INDEX BUFFER 
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+
 	// Creating shaders
 	ShaderProgramSource source = ParseShader("res/shaders/Basic.shader");
 	unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
-	 glUseProgram(shader);
+	glUseProgram(shader);
 
 
 	/* Loop until the user closes the window */
@@ -163,7 +185,12 @@ int main(void)
 		//glVertex2f(0.5f, -0.5f);
 		//glEnd();
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		// Crtanje sa nizovima vertexa
+		// Za trougao bio treci parametar "3"
+		// glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		// Index buffer crtanje
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
 
 		/* Swap front and back buffers */
