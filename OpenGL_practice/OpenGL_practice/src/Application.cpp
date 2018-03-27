@@ -26,7 +26,10 @@
 static void GLClearError()
 {
 	// while (!glGetError()); // Can be done like this as well
-	while (!glGetError() != GL_NO_ERROR);
+	while (glGetError() != GL_NO_ERROR)
+	{
+		std::cout << "radi ovo" << std::endl;
+	}
 }
 
 static bool GLLogCall(const char* function, const char* file, int line)
@@ -217,9 +220,9 @@ int main(void)
 		// glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		// Index buffer crtanje
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		// glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
-		// GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr)); // uncomment to test error func
+		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr)); // uncomment to test error func
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
