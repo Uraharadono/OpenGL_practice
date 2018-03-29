@@ -144,6 +144,11 @@ int main(void)
 	if (!glfwInit())
 		return -1;
 
+	// video 12
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	
 	/* Create a windowed mode window and its OpenGL context */
 	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
 	if (!window)
@@ -183,12 +188,18 @@ int main(void)
 		2, 3, 0
 	};
 
+	// video 12
+	unsigned int vao;
+	GLCall(glGenVertexArrays(1, &vao));
+	GLCall(glBindVertexArray(vao));
+
+
 	// Stari array of vertexes nacin crtanja trougla
 	unsigned int buffer;
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	// Ovdje je prije bilo za 2gi parametar samo "6 * sizeof(float)", ali to je zato sto je bilo 6 tacaka koje treba nacrtati
-	glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
 	// Vertex attributes and layouts in open GL
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 	glEnableVertexAttribArray(0);
@@ -208,6 +219,15 @@ int main(void)
 	GLCall(int location = glGetUniformLocation(shader, "u_Color"));
 	ASSERT(location != -1); 
 	GLCall(glUniform4f(location, 0.2f, 0.3f, 0.8f, 1.0f));
+
+	// video 12 - Vertex arrays
+	// we are unbidning everything so we can see how we would do this with vertex array
+	GLCall(glBindVertexArray(0));
+	GLCall(glUseProgram(0));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+	// video 11
 	float r = 0.0f;
 	float increment = 0.05f;
 
@@ -233,7 +253,21 @@ int main(void)
 
 		// GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr)); // uncomment to test error func
 
-		GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));
+
+		// video 12
+		// before we call drawing functions we have to bind everything
+		GLCall(glUseProgram(shader));												   // bind shader
+		GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));							   // set-up uniforms
+		GLCall(glBindVertexArray(vao));
+		/*
+		 *As of video 12, 11th min, we dont have to do this anymore
+			GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));								   //
+			GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0)); // we bind our vertex buffer
+			GLCall(glEnableVertexAttribArray(0));										   // set-up layout of that vertex buffer
+		*/
+		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));							   // finally bind our index buffer
+
+		// GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f)); // this has been commented out cause of video 12
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 		if (r > 1.0f)
 			increment = -0.05f;
